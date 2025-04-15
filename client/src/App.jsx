@@ -14,9 +14,8 @@ import Home from './pages/Home';
 import CrimeReport from './pages/CrimeReport';
 import Dashboard from './pages/Dashboard';
 import Navbar from './components/Navbar';
-import { createGlobalStyle } from 'styled-components';
 
-const GlobalStyle = createGlobalStyle`
+const GlobalStyles = styled('div')`
   * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
@@ -30,13 +29,11 @@ const GlobalStyle = createGlobalStyle`
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Improve touch targets on mobile */
   button, a {
     min-height: 44px;
     min-width: 44px;
   }
 
-  /* Prevent pull-to-refresh on mobile */
   html, body {
     overscroll-behavior-y: contain;
   }
@@ -106,7 +103,7 @@ export default function App() {
   return (
     <ThemeProvider theme={githubTheme}>
       <CssBaseline />
-      <GlobalStyle />
+      <GlobalStyles />
       <Router>
         <Box sx={{ 
           minHeight: '100vh',
