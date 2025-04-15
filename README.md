@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Crime Analysis System
 
 An interactive visualization system for analyzing crime patterns across India.
@@ -53,3 +54,6 @@ MAPTILER_API_KEY=your_api_key_here
 - Express
 - MapTiler SDK
 - Material-UI
+=======
+# crime-analysis-system
+>>>>>>> 8554ce96faa114d324bc1f9fb7189b0175d4bc56
