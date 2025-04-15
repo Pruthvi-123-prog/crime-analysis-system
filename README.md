@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Crime Analysis System
 
 An interactive visualization system for analyzing crime patterns across India.
