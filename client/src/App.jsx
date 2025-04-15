@@ -14,6 +14,33 @@ import Home from './pages/Home';
 import CrimeReport from './pages/CrimeReport';
 import Dashboard from './pages/Dashboard';
 import Navbar from './components/Navbar';
+import { createGlobalStyle } from 'styled-components';
+
+const GlobalStyle = createGlobalStyle`
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Improve touch targets on mobile */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Prevent pull-to-refresh on mobile */
+  html, body {
+    overscroll-behavior-y: contain;
+  }
+`;
 
 const StyledNavbar = styled(AppBar)(({ theme }) => ({
   backgroundColor: 'rgba(13, 17, 23, 0.8)',
@@ -79,6 +106,7 @@ export default function App() {
   return (
     <ThemeProvider theme={githubTheme}>
       <CssBaseline />
+      <GlobalStyle />
       <Router>
         <Box sx={{ 
           minHeight: '100vh',

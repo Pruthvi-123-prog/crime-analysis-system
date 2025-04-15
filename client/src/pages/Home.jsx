@@ -23,8 +23,16 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 }));
 
 const MapWrapper = styled(Paper)(({ theme }) => ({
-  height: '60vh',
-  minHeight: '500px',
+  height: {
+    xs: '40vh',  // Smaller height on mobile
+    sm: '50vh',  // Medium height on tablets
+    md: '60vh'   // Full height on desktop
+  },
+  minHeight: {
+    xs: '300px', // Minimum height on mobile
+    sm: '400px', // Minimum height on tablets
+    md: '500px'  // Minimum height on desktop
+  },
   width: '100%',
   position: 'relative',
   marginBottom: theme.spacing(4),
@@ -40,9 +48,11 @@ const MapWrapper = styled(Paper)(({ theme }) => ({
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
-    width: '100% !important',
-    height: '100% !important'
+    bottom: 0
+  },
+  // Add touch scrolling support for mobile
+  '& .maplibregl-canvas-container': {
+    touchAction: 'pan-y pinch-zoom'
   }
 }));
 
@@ -63,11 +73,14 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 
 const AlertPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
-  backgroundColor: theme.palette.error.light,
-  color: theme.palette.error.contrastText,
   marginBottom: theme.spacing(2),
-  '&:last-child': {
-    marginBottom: 0
+  borderRadius: theme.shape.borderRadius,
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1.5),
+    '& .MuiButton-root': {
+      minWidth: 'auto',
+      padding: '6px 12px'
+    }
   }
 }));
 
@@ -173,11 +186,16 @@ const Home = () => {
             variant="h3" 
             align="center" 
             sx={{ 
-              mb: { xs: 4, sm: 6 },
-              fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+              mb: { xs: 2, sm: 4, md: 6 },
+              fontSize: { 
+                xs: '1.75rem',
+                sm: '2.25rem', 
+                md: '3rem' 
+              },
               fontFamily: '"Roboto", sans-serif',
               fontWeight: 700,
-              letterSpacing: '-0.01em'
+              letterSpacing: '-0.01em',
+              wordBreak: 'break-word' // Prevent text overflow on small screens
             }}
           >
             Crime Analysis System
@@ -185,9 +203,12 @@ const Home = () => {
 
           <Grid 
             container 
-            spacing={{ xs: 2, sm: 2, md: 4 }} 
+            spacing={{ xs: 2, sm: 3, md: 4 }} 
             justifyContent="center"
-            sx={{ mb: 4 }}
+            sx={{ 
+              mb: { xs: 2, sm: 3, md: 4 },
+              px: { xs: 1, sm: 2, md: 3 } // Add padding on smaller screens
+            }}
           >
             {[
               {
@@ -202,7 +223,13 @@ const Home = () => {
               }
             ].map((item, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
-                <StyledPaper elevation={2}>
+                <StyledPaper 
+                  elevation={2}
+                  sx={{ 
+                    minHeight: { xs: 'auto', sm: '200px' },
+                    p: { xs: 2, sm: 3 } // Adjust padding for different screens
+                  }}
+                >
                   <Typography 
                     variant="h5" 
                     gutterBottom 
