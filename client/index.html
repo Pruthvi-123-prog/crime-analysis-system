@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.css" rel="stylesheet" />
+    <script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Crime Analysis System</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --max-content-width: 1400px;
+        --container-padding: max(1rem, calc((100vw - var(--max-content-width)) / 2));
+      }
+
+      html {
+        font-size: calc(14px + 0.390625vw);
+      }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      #root {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .maplibregl-canvas {
+        outline: none;
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      /* Material UI overrides for responsive containers */
+      .MuiContainer-root {
+        width: 100% !important;
+        padding-left: var(--container-padding) !important;
+        padding-right: var(--container-padding) !important;
+      }
+
+      /* Responsive grid layout */
+      .MuiGrid-root {
+        width: 100% !important;
+        margin: 0 !important;
+      }
+
+      /* Responsive Paper components */
+      .MuiPaper-root {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+      }
+
+      /* Responsive text sizing */
+      @media (max-width: 600px) {
+        html {
+          font-size: 14px;
+        }
+        .MuiTypography-h3 {
+          font-size: 1.75rem !important;
+        }
+        .MuiTypography-h4 {
+          font-size: 1.5rem !important;
+        }
+
+        .maplibregl-map {
+          position: absolute !important;
+          top: 0;
+          left: 0;
+          width: 100% !important;
+          height: 100% !important;
+        }
+  
+        .maplibregl-canvas-container {
+          width: 100% !important;
+          height: 100% !important;
+        }
+  
+        .maplibregl-popup-content {
+          padding: 15px;
+          border-radius: 8px;
+          max-width: 300px;
+        }
+        
+      }
+
+      @media (min-width: 601px) and (max-width: 960px) {
+        html {
+          font-size: 16px;
+        }
+      }
+
+      @media (min-width: 961px) {
+        html {
+          font-size: 18px;
+        }
+      }
+
+      /* Ensure form inputs scale properly */
+      .MuiTextField-root {
+        width: 100% !important;
+      }
+
+      /* Make buttons responsive */
+      .MuiButton-root {
+        white-space: nowrap;
+        padding: clamp(0.5rem, 1vw, 1rem) clamp(1rem, 2vw, 2rem) !important;
+      }
+
+      /* Ensure images and maps are responsive */
+      img, 
+      .maplibregl-map {
+        max-width: 100%;
+        height: auto;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

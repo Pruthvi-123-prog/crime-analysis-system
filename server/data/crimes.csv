@@ -1,0 +1,6 @@
+date,type,latitude,longitude,description
+2023-01-01,Theft,28.6139,77.2090,"Mobile phone theft reported at market"
+2023-01-02,Robbery,28.6229,77.2089,"Bank robbery attempt"
+2023-01-03,Assault,28.6150,77.2100,"Physical altercation outside restaurant"
+2023-01-04,Vandalism,28.6180,77.2095,"Property damage reported at shop"
+2023-01-05,Theft,28.6160,77.2085,"Vehicle theft from parking lot"
