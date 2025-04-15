@@ -12,6 +12,7 @@ export default defineConfig({
   },
   root: '.', // ensures root is client folder
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    sourcemap: true
   }
 });

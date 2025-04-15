@@ -1,5 +1,5 @@
 import { AppBar, Toolbar, Button, Container } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ReportIcon from '@mui/icons-material/Report';
@@ -40,13 +40,13 @@ export default function Navbar() {
     <StyledNavbar position="sticky">
       <Container maxWidth="lg">
         <Toolbar sx={{ justifyContent: 'center' }}>
-          <NavButton component={Link} to="/" startIcon={<HomeIcon />}>
+          <NavButton component={RouterLink} to="/" startIcon={<HomeIcon />}>
             Home
           </NavButton>
-          <NavButton component={Link} to="/dashboard" startIcon={<DashboardIcon />}>
+          <NavButton component={RouterLink} to="/dashboard" startIcon={<DashboardIcon />}>
             Dashboard
           </NavButton>
-          <NavButton component={Link} to="/report-crime" startIcon={<ReportIcon />}>
+          <NavButton component={RouterLink} to="/report-crime" startIcon={<ReportIcon />}>
             Report Crime
           </NavButton>
         </Toolbar>

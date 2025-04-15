@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { ThemeProvider, useTheme } from '@mui/material/styles';
 import { AppBar, Toolbar, Button, Box, Container, LinearProgress } from '@mui/material';
 import TouchRipple from '@mui/material/ButtonBase/TouchRipple';
