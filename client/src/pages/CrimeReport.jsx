@@ -69,16 +69,15 @@ export default function CrimeReport() {
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    maptilersdk.config.apiKey = 'O2qg6AC8VtSjtTZ5KKc6';
+    const apiKey = import.meta.env.VITE_MAPTILER_API_KEY;
+    maptilersdk.config.apiKey = apiKey;
     
     const newMap = new maptilersdk.Map({
       container: mapContainer.current,
-      style: maptilersdk.MapStyle.STREETS,
+      style: `${import.meta.env.VITE_MAPTILER_STYLE_URL}?key=${apiKey}`,
       center: [77.2090, 28.6139],
       zoom: 12
     });
-
-    map.current = newMap;
 
     newMap.on('load', () => {
       // Add click event to map
@@ -103,6 +102,8 @@ export default function CrimeReport() {
       });
     });
 
+    map.current = newMap;
+
     return () => {
       if (map.current) {
         map.current.remove();
@@ -115,18 +116,23 @@ export default function CrimeReport() {
     e.preventDefault();
     try {
       if (!formData.title || !formData.type || !formData.location.lat || !formData.location.lng) {
-        throw new Error('Please fill in all required fields and select a location on the map');
+        setError('Please fill in all required fields and select a location on the map');
+        return;
       }
 
       const response = await axios.post('http://localhost:5000/api/crimes', formData);
-      console.log('Crime registered:', response.data);
-      setSuccess(true);
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
+      
+      if (response.status === 201) {
+        setSuccess(true);
+        setError('');
+        // Clear form or redirect
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      }
     } catch (error) {
-      console.error('Registration error:', error);
-      setError(error.response?.data?.message || error.message);
+      console.error('Submission error:', error);
+      setError(error.response?.data?.message || 'Failed to submit crime report');
     }
   };
 

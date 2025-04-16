@@ -6,18 +6,17 @@ const CrimeSchema = new mongoose.Schema({
     required: true
   },
   description: String,
-  location: {
-    lat: Number,
-    lng: Number
-  },
   type: {
     type: String,
-    enum: ['Theft', 'Robbery', 'Assault', 'Vandalism', 'Other'],
     required: true
+  },
+  location: {
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true }
   },
   status: {
     type: String,
-    enum: ['pending', 'investigating', 'resolved'],
+    enum: ['pending', 'accepted', 'rejected'],
     default: 'pending'
   }
 }, { timestamps: true });

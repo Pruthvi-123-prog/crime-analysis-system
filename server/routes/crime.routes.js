@@ -1,5 +1,5 @@
 const express = require('express');
-const router = require('express').Router();
+const router = express.Router();
 const Crime = require('../models/Crime');
 
 // Get all crimes
@@ -13,31 +13,76 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get accepted crimes
+router.get('/accepted', async (req, res) => {
+  try {
+    const acceptedCrimes = await Crime.find({ status: 'accepted' });
+    res.json(acceptedCrimes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Register new crime
 router.post('/', async (req, res) => {
   try {
-    console.log('Received crime data:', req.body); // Debug log
-
     const newCrime = new Crime({
       title: req.body.title,
       description: req.body.description,
-      location: {
-        lat: parseFloat(req.body.location.lat),
-        lng: parseFloat(req.body.location.lng)
-      },
       type: req.body.type,
+      location: {
+        lat: req.body.location.lat,
+        lng: req.body.location.lng
+      },
       status: 'pending'
     });
 
     const savedCrime = await newCrime.save();
-    console.log('Saved crime:', savedCrime); // Debug log
     res.status(201).json(savedCrime);
   } catch (error) {
-    console.error('Error saving crime:', error);
-    res.status(400).json({ 
-      message: 'Failed to register crime',
-      error: error.message 
-    });
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Update crime status
+router.patch('/:id', async (req, res) => {
+  try {
+    const updatedCrime = await Crime.findByIdAndUpdate(
+      req.params.id,
+      { status: req.body.status },
+      { new: true }
+    );
+    res.json(updatedCrime);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Update crime details
+router.put('/:id', async (req, res) => {
+  try {
+    const { title, description, type, status, location } = req.body;
+    
+    const updatedCrime = await Crime.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        description,
+        type,
+        status,
+        location
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedCrime) {
+      return res.status(404).json({ message: 'Case not found' });
+    }
+
+    res.json(updatedCrime);
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(400).json({ message: error.message });
   }
 });
 

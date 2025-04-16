@@ -7,6 +7,7 @@
     "dev": "nodemon index.js --ignore 'data/*'"
   },
   "dependencies": {
+    "@mui/lab": "^7.0.0-beta.11",
     "cors": "^2.8.5",
     "csv-parse": "^5.6.0",
     "dotenv": "^16.5.0",
@@ -14,7 +15,7 @@
     "mongoose": "^8.13.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "nodemon": "^3.1.9"
   },
   "keywords": [],
   "author": "",

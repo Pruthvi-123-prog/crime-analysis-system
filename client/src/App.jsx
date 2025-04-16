@@ -14,6 +14,8 @@ import Home from './pages/Home';
 import CrimeReport from './pages/CrimeReport';
 import Dashboard from './pages/Dashboard';
 import Navbar from './components/Navbar';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
 
 const GlobalStyles = styled('div')`
   * {
@@ -93,6 +95,8 @@ function AnimatedRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/report-crime" element={<CrimeReport />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
       </PageTransition>
     </AnimatePresence>

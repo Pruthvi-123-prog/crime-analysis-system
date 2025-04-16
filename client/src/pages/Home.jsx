@@ -1,18 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Paper, Grid, Button, Container, CircularProgress } from '@mui/material';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import { motion } from 'framer-motion';
-import { styled } from '@mui/material/styles';
+import { useEffect, useRef, useState } from 'react';
+import { 
+  Box, 
+  Typography, 
+  Paper, 
+  Button, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  Divider, 
+  Collapse 
+} from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
+import axios from 'axios';
 import * as maptilersdk from '@maptiler/sdk';
 import "@maptiler/sdk/dist/maptiler-sdk.css";
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import CloseIcon from '@mui/icons-material/Close';
-import IconButton from '@mui/material/IconButton';
-import { initializeMap, updateCrimeData } from '../config/mapConfig';
 
+<<<<<<< HEAD
 const StyledContainer = styled(Container)(({ theme }) => ({
   minHeight: '100vh',
   padding: theme.spacing(2),
@@ -112,70 +115,170 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const Home = () => {
+=======
+export default function Home() {
+>>>>>>> 8903ac9 (Safe)
   const mapContainer = useRef(null);
   const map = useRef(null);
+  const markers = useRef([]);
+  const [acceptedReports, setAcceptedReports] = useState([]);
+  const [expandedReports, setExpandedReports] = useState({});
+  const [showManageAlerts, setShowManageAlerts] = useState(false);
   const [isMapLoading, setIsMapLoading] = useState(true);
-  const [alertsEnabled, setAlertsEnabled] = useState(false);
-  const [alertDetailsOpen, setAlertDetailsOpen] = useState(false);
-  const [manageAlertsOpen, setManageAlertsOpen] = useState(false);
-  const [selectedAlert, setSelectedAlert] = useState(null);
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [filterType, setFilterType] = useState('all');
 
-  const [recentAlerts] = useState([
-    { message: "Robbery reported in Connaught Place", timestamp: "2 hours ago" },
-    { message: "Suspicious activity near Metro Station", timestamp: "5 hours ago" }
-  ]);
+  const handleSort = () => {
+    const sorted = [...acceptedReports].sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    });
+    setAcceptedReports(sorted);
+    setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
+  };
 
-  // Initialize map
+  const handleFilter = (type) => {
+    const filtered = acceptedReports.filter(report => 
+      type === 'all' ? true : report.type === type
+    );
+    setAcceptedReports(filtered);
+    setFilterType(type);
+  };
+
+  const handleExport = () => {
+    const csvContent = acceptedReports.map(report => {
+      return [
+        report.title,
+        report.type,
+        report.description,
+        `${report.location.lat}, ${report.location.lng}`,
+        new Date(report.createdAt).toLocaleString()
+      ].join(',');
+    }).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'crime-alerts.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    const fetchAcceptedReports = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/crimes/accepted');
+        setAcceptedReports(response.data);
+      } catch (error) {
+        console.error('Error fetching accepted reports:', error);
+      }
+    };
 
-    try {
-      console.log('Initializing map...');
-      const newMap = initializeMap(mapContainer.current);
-      map.current = newMap;
+    // Initial fetch
+    fetchAcceptedReports();
 
-      newMap.on('load', () => {
-        console.log('Map loaded, adding markers...');
-        updateCrimeData(newMap);
-        setIsMapLoading(false);
-      });
+    // Set up WebSocket connection for real-time updates
+    const ws = new WebSocket('ws://localhost:8080');
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setAcceptedReports(data);
+    };
 
-      return () => {
-        if (map.current) {
-          map.current.remove();
-          map.current = null;
-        }
-      };
-    } catch (error) {
-      console.error('Error initializing map:', error);
-      setIsMapLoading(false);
-    }
+    return () => {
+      ws.close();
+    };
   }, []);
 
-  const handleEnableAlerts = () => {
-    setAlertsEnabled(!alertsEnabled);
-    if (Notification.permission !== 'granted') {
-      Notification.requestPermission();
-    }
-  };
+  useEffect(() => {
+    if (!mapContainer.current) return;
 
-  const handleViewDetails = (alert) => {
-    setSelectedAlert(alert);
-    setAlertDetailsOpen(true);
-  };
+    const apiKey = import.meta.env.VITE_MAPTILER_API_KEY;
+    maptilersdk.config.apiKey = apiKey;
+    
+    const newMap = new maptilersdk.Map({
+      container: mapContainer.current,
+      style: `${import.meta.env.VITE_MAPTILER_STYLE_URL}?key=${apiKey}`,
+      center: [77.2090, 28.6139], // Default center (Delhi)
+      zoom: 12
+    });
 
-  const handleManageAlerts = () => {
-    setManageAlertsOpen(true);
+    map.current = newMap;
+
+    // Function to update map bounds based on markers
+    const updateMapBounds = () => {
+      if (acceptedReports.length === 0) return;
+
+      const bounds = new maptilersdk.LngLatBounds();
+      
+      // Extend bounds to include all marker locations
+      acceptedReports.forEach(report => {
+        bounds.extend([report.location.lng, report.location.lat]);
+      });
+
+      // Add padding to bounds and fit map
+      map.current.fitBounds(bounds, {
+        padding: 50,
+        maxZoom: 15,
+        duration: 1000 // Animation duration in milliseconds
+      });
+    };
+
+    newMap.on('load', () => {
+      // Clear existing markers
+      markers.current.forEach(marker => marker.remove());
+      markers.current = [];
+
+      // Add markers for accepted reports
+      acceptedReports.forEach(report => {
+        const marker = new maptilersdk.Marker()
+          .setLngLat([report.location.lng, report.location.lat])
+          .setPopup(new maptilersdk.Popup().setHTML(
+            `<h3>${report.title}</h3>
+             <p>Type: ${report.type}</p>
+             <p>${report.description}</p>`
+          ))
+          .addTo(newMap);
+        
+        markers.current.push(marker);
+      });
+
+      // Update map bounds after adding markers
+      updateMapBounds();
+    });
+
+    return () => {
+      markers.current.forEach(marker => marker.remove());
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, [acceptedReports]); // Add acceptedReports as dependency
+
+  const toggleDetails = (reportId) => {
+    setExpandedReports(prev => ({
+      ...prev,
+      [reportId]: !prev[reportId]
+    }));
   };
 
   return (
-    <StyledContainer>
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100vh',
+      width: '50vw',
+      overflow: 'hidden'
+    }}>
+      {/* Map Container - will shrink when alerts expand */}
       <Box sx={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center',
-        width: '100%'
+        flex: '1 1 auto',
+        minHeight: '30vh', // Minimum height for map
+        transition: 'all 0.3s ease'
       }}>
+<<<<<<< HEAD
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -260,211 +363,155 @@ const Home = () => {
               </Grid>
             ))}
           </Grid>
+=======
+        <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
+      </Box>
 
-          <MapWrapper elevation={2}>
-            {isMapLoading && (
-              <Box sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                zIndex: 1
+      {/* Alerts Section - will expand smoothly */}
+      <Paper sx={{ 
+        flex: '0 1 auto',
+        maxHeight: showManageAlerts ? '70vh' : '35vh', // Adjust max height based on panel state
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+        borderTop: 1,
+        borderColor: 'divider',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'all 0.3s ease'
+      }}>
+        <Box sx={{ p: 1.5 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            mb: 1
+          }}>
+            <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>
+              Recent Alerts
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              sx={{ minWidth: 'auto', px: 2 }}
+              onClick={() => setShowManageAlerts(!showManageAlerts)}
+            >
+              {showManageAlerts ? 'Hide Alerts' : 'Manage Alerts'}
+            </Button>
+          </Box>
+>>>>>>> 8903ac9 (Safe)
+
+          <List sx={{ 
+            overflowY: 'auto',
+            maxHeight: showManageAlerts ? 'calc(70vh - 120px)' : 'calc(35vh - 80px)',
+            transition: 'all 0.3s ease',
+            '&::-webkit-scrollbar': {
+              width: '6px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              borderRadius: '3px',
+            }
+          }}>
+            {acceptedReports.map((report) => (
+              <ListItem key={report._id} sx={{ 
+                flexDirection: 'column', 
+                alignItems: 'stretch',
+                py: 0.5
               }}>
-                <CircularProgress />
-              </Box>
-            )}
-            <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
-          </MapWrapper>
-
-          <Paper 
-            elevation={2} 
-            sx={{ 
-              p: { xs: 2, sm: 3 },
-              borderRadius: 2,
-              width: '100%'
-            }}
-          >
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              mb: 3,
-              flexDirection: { xs: 'column', sm: 'row' },
-              gap: { xs: 2, sm: 0 }
-            }}>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  fontFamily: '"Roboto", sans-serif',
-                  fontWeight: 500
-                }}
-              >
-                Recent Alerts
-              </Typography>
-              <StyledButton 
-                startIcon={<NotificationsIcon />}
-                sx={{ textTransform: 'none' }}
-                onClick={handleManageAlerts}
-              >
-                Manage Alerts
-              </StyledButton>
-            </Box>
-
-            {recentAlerts.map((alert, index) => (
-              <AlertPaper key={index}>
-                <Box sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: { xs: 'flex-start', sm: 'center' },
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  gap: { xs: 2, sm: 0 }
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  width: '100%'
                 }}>
-                  <Box>
-                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                      {alert.message}
+                  <ListItemText
+                    primary={
+                      <Typography variant="body1" sx={{ fontSize: '0.95rem' }}>
+                        {report.title}
+                      </Typography>
+                    }
+                    secondary={
+                      <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
+                        {`${report.type} - ${new Date(report.createdAt).toLocaleString()}`}
+                      </Typography>
+                    }
+                  />
+                  <Button
+                    startIcon={<InfoIcon sx={{ fontSize: '0.9rem' }} />}
+                    size="small"
+                    sx={{ ml: 1, minWidth: 'auto', px: 1 }}
+                    onClick={() => toggleDetails(report._id)}
+                  >
+                    {expandedReports[report._id] ? 'Hide' : 'Show'}
+                  </Button>
+                </Box>
+                
+                <Collapse in={expandedReports[report._id]} timeout="auto" unmountOnExit>
+                  <Box sx={{ 
+                    p: 1.5, 
+                    bgcolor: 'background.paper', 
+                    mt: 0.5,
+                    borderRadius: 1,
+                    border: 1,
+                    borderColor: 'divider',
+                    wordBreak: 'break-word' // Prevent text overflow
+                  }}>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      {report.description}
                     </Typography>
-                    <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                      {alert.timestamp}
+                    <Typography variant="body2" color="textSecondary">
+                      Location: {report.location.lat}, {report.location.lng}
                     </Typography>
                   </Box>
-                  <StyledButton 
-                    size="small" 
-                    variant="contained" 
-                    color="error"
-                    onClick={() => handleViewDetails(alert)}
-                    sx={{ 
-                      bgcolor: 'error.dark',
-                      '&:hover': { bgcolor: 'error.dark' }
-                    }}
-                  >
-                    View Details
-                  </StyledButton>
-                </Box>
-              </AlertPaper>
+                </Collapse>
+                <Divider sx={{ my: 0.5 }} />
+              </ListItem>
             ))}
-          </Paper>
+          </List>
+        </Box>
+      </Paper>
 
-          {/* Alert Details Dialog */}
-          <StyledDialog
-            open={alertDetailsOpen}
-            onClose={() => setAlertDetailsOpen(false)}
-            maxWidth="sm"
-            fullWidth
-          >
-            <DialogTitle>
-              Alert Details
-              <IconButton
-                sx={{ position: 'absolute', right: 8, top: 8 }}
-                onClick={() => setAlertDetailsOpen(false)}
-              >
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            <DialogContent>
-              {selectedAlert && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="h6" gutterBottom>
-                    {selectedAlert.message}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Reported: {selectedAlert.timestamp}
-                  </Typography>
-                  <Typography variant="body1" sx={{ mt: 2 }}>
-                    Location: {selectedAlert.location || 'Not specified'}
-                  </Typography>
-                  <Typography variant="body1" sx={{ mt: 1 }}>
-                    Status: {selectedAlert.status || 'Active'}
-                  </Typography>
-                </Box>
-              )}
-            </DialogContent>
-            <DialogActions>
-              <StyledButton onClick={() => setAlertDetailsOpen(false)}>
-                Close
-              </StyledButton>
-            </DialogActions>
-          </StyledDialog>
-
-          {/* Manage Alerts Dialog */}
-          <StyledDialog
-            open={manageAlertsOpen}
-            onClose={() => setManageAlertsOpen(false)}
-            maxWidth="md"
-            fullWidth
-          >
-            <DialogTitle>
-              Manage Alerts
-              <IconButton
-                sx={{ position: 'absolute', right: 8, top: 8 }}
-                onClick={() => setManageAlertsOpen(false)}
-              >
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            <DialogContent>
-              <Box sx={{ mt: 2 }}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      Alert Preferences
-                    </Typography>
-                    <Paper sx={{ p: 2 }}>
-                      {['Theft', 'Robbery', 'Assault', 'Vandalism'].map((type) => (
-                        <Box
-                          key={type}
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            mb: 2
-                          }}
-                        >
-                          <Typography>{type} Alerts</Typography>
-                          <StyledButton
-                            size="small"
-                            variant="outlined"
-                          >
-                            Enable
-                          </StyledButton>
-                        </Box>
-                      ))}
-                    </Paper>
-                  </Grid>
-                </Grid>
-              </Box>
-            </DialogContent>
-            <DialogActions>
-              <StyledButton onClick={() => setManageAlertsOpen(false)}>
-                Save Changes
-              </StyledButton>
-            </DialogActions>
-          </StyledDialog>
-
+      {/* Manage Alerts Panel - integrated into main Paper */}
+      <Collapse in={showManageAlerts}>
+        <Box sx={{ 
+          p: 1.5,
+          borderTop: 1,
+          borderColor: 'divider',
+          bgcolor: 'background.paper'
+        }}>
           <Box sx={{ 
-            mt: 4, 
-            textAlign: 'center', 
-            p: { xs: 2, sm: 3 },
-            borderRadius: 1
+            display: 'flex', 
+            gap: 1.5,
+            flexWrap: 'wrap'
           }}>
-            <Typography 
-              variant="h6" 
-              gutterBottom 
-              sx={{ 
-                fontSize: { xs: '1.1rem', sm: '1.25rem' },
-                fontFamily: '"Roboto", sans-serif',
-                fontWeight: 500
-              }}
+            <Button 
+              variant="outlined"
+              size="small"
+              sx={{ minWidth: 'auto', px: 2 }}
+              onClick={() => handleFilter(filterType === 'all' ? 'Theft' : 'all')}
             >
-              Emergency? Call 112
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              For immediate assistance, please contact emergency services
-            </Typography>
+              {filterType === 'all' ? 'Show Theft Only' : 'Show All'}
+            </Button>
+            <Button 
+              variant="outlined"
+              size="small"
+              sx={{ minWidth: 'auto', px: 2 }}
+              onClick={handleSort}
+            >
+              Sort {sortOrder === 'desc' ? '↑' : '↓'}
+            </Button>
+            <Button 
+              variant="outlined"
+              size="small"
+              sx={{ minWidth: 'auto', px: 2 }}
+              onClick={handleExport}
+            >
+              Export
+            </Button>
           </Box>
-        </motion.div>
-      </Box>
-    </StyledContainer>
+        </Box>
+      </Collapse>
+    </Box>
   );
-};
-
-export default Home;
+}

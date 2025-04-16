@@ -1,37 +1,37 @@
-const Crime = require('../models/Crime');
+const WebSocket = require('ws');
+const Crime = require('./models/Crime');
+const mongoose = require('mongoose');
 
-const sampleCrimes = [
-  {
-    title: "Robbery at ATM",
-    description: "Armed robbery reported at SBI ATM",
-    location: {
-      lat: 28.6139,
-      lng: 77.2090
-    },
-    type: "Robbery",
-    status: "investigating"
-  },
-  {
-    title: "Vehicle Theft",
-    description: "Car stolen from parking area",
-    location: {
-      lat: 28.6229,
-      lng: 77.2100
-    },
-    type: "Theft",
-    status: "pending"
-  }
-];
+mongoose.connect('mongodb://localhost:27017/crimeDB', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
-const seedDatabase = async () => {
-  try {
-    await Crime.deleteMany({});
-    await Crime.insertMany(sampleCrimes);
-    console.log('Sample data seeded successfully');
-  } catch (error) {
-    console.error('Error seeding data:', error.message);
-    process.exit(1);
-  }
-};
+const wss = new WebSocket.Server({ port: 8080 });
 
-module.exports = seedDatabase;
+// Watch for changes in the Crime collection
+Crime.watch().on('change', async () => {
+  // When changes occur, send updates to all connected clients
+  const acceptedCrimes = await Crime.find({ status: 'accepted' })
+    .sort({ createdAt: -1 })
+    .limit(10);
+  
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(acceptedCrimes));
+    }
+  });
+});
+
+wss.on('connection', async (ws) => {
+  console.log('Client connected');
+  
+  // Send initial data when client connects
+  const acceptedCrimes = await Crime.find({ status: 'accepted' })
+    .sort({ createdAt: -1 })
+    .limit(10);
+  
+  ws.send(JSON.stringify(acceptedCrimes));
+});
+
+console.log('WebSocket server running on port 8080');
