@@ -14,12 +14,7 @@ import Home from './pages/Home';
 import CrimeReport from './pages/CrimeReport';
 import Dashboard from './pages/Dashboard';
 import Navbar from './components/Navbar';
-<<<<<<< HEAD
-import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
-=======
 import { createGlobalStyle } from 'styled-components';
->>>>>>> parent of 1878657 (Prepare for deployment)
 
 const GlobalStyle = createGlobalStyle`
   * {
