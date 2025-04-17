@@ -109,9 +109,9 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <Router>
-    <ThemeProvider theme={githubTheme}>
-      <CssBaseline />
-      <GlobalStyle />
+      <ThemeProvider theme={githubTheme}>
+        <CssBaseline />
+        <GlobalStyle />
         <Box sx={{ 
           minHeight: '100vh',
           bgcolor: 'background.default',
