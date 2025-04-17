@@ -15,6 +15,7 @@ import axios from 'axios';
 import * as maptilersdk from '@maptiler/sdk';
 import "@maptiler/sdk/dist/maptiler-sdk.css";
 
+<<<<<<< HEAD
 const StyledContainer = styled(Container)(({ theme }) => ({
   minHeight: '100vh',
   padding: theme.spacing(2),
@@ -113,7 +114,10 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   }
 }));
 
+const Home = () => {
+=======
 export default function Home() {
+>>>>>>> 8903ac9 (Safe)
   const mapContainer = useRef(null);
   const map = useRef(null);
   const markers = useRef([]);
@@ -274,6 +278,92 @@ export default function Home() {
         minHeight: '30vh', // Minimum height for map
         transition: 'all 0.3s ease'
       }}>
+<<<<<<< HEAD
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ width: '100%', maxWidth: '1400px' }}
+        >
+          <Typography 
+            variant="h3" 
+            align="center" 
+            sx={{ 
+              mb: { xs: 2, sm: 4, md: 6 },
+              fontSize: { 
+                xs: '1.75rem',
+                sm: '2.25rem', 
+                md: '3rem' 
+              },
+              fontFamily: '"Roboto", sans-serif',
+              fontWeight: 700,
+              letterSpacing: '-0.01em',
+              wordBreak: 'break-word' // Prevent text overflow on small screens
+            }}
+          >
+            Crime Analysis System
+          </Typography>
+
+          <Grid 
+            container 
+            spacing={{ xs: 2, sm: 3, md: 4 }} 
+            justifyContent="center"
+            sx={{ 
+              mb: { xs: 2, sm: 3, md: 4 },
+              px: { xs: 1, sm: 2, md: 3 } // Add padding on smaller screens
+            }}
+          >
+            {[
+              {
+                title: 'Report Incidents',
+                description: 'Submit details about criminal activities',
+                path: '/report-crime'
+              },
+              {
+                title: 'View Analytics',
+                description: 'Analyze crime patterns and statistics',
+                path: '/dashboard'
+              }
+            ].map((item, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <StyledPaper 
+                  elevation={2}
+                  sx={{ 
+                    minHeight: { xs: 'auto', sm: '200px' },
+                    p: { xs: 2, sm: 3 } // Adjust padding for different screens
+                  }}
+                >
+                  <Typography 
+                    variant="h5" 
+                    gutterBottom 
+                    sx={{ 
+                      fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                      fontFamily: '"Roboto", sans-serif',
+                      fontWeight: 500
+                    }}
+                  >
+                    {item.title}
+                  </Typography>
+                  <Typography 
+                    variant="body1" 
+                    sx={{ mb: 3, color: 'text.secondary' }}
+                  >
+                    {item.description}
+                  </Typography>
+                  <StyledButton
+                    variant="contained"
+                    color="primary"
+                    href={item.path}
+                    fullWidth
+                    sx={{ maxWidth: 200 }}
+                  >
+                    Learn More
+                  </StyledButton>
+                </StyledPaper>
+              </Grid>
+            ))}
+          </Grid>
+=======
         <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
       </Box>
 
@@ -309,6 +399,7 @@ export default function Home() {
               {showManageAlerts ? 'Hide Alerts' : 'Manage Alerts'}
             </Button>
           </Box>
+>>>>>>> 8903ac9 (Safe)
 
           <List sx={{ 
             overflowY: 'auto',
