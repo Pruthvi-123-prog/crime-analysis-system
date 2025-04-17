@@ -14,10 +14,14 @@ import Home from './pages/Home';
 import CrimeReport from './pages/CrimeReport';
 import Dashboard from './pages/Dashboard';
 import Navbar from './components/Navbar';
+<<<<<<< HEAD
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+=======
+import { createGlobalStyle } from 'styled-components';
+>>>>>>> parent of 1878657 (Prepare for deployment)
 
-const GlobalStyles = styled('div')`
+const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
@@ -31,11 +35,13 @@ const GlobalStyles = styled('div')`
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Improve touch targets on mobile */
   button, a {
     min-height: 44px;
     min-width: 44px;
   }
 
+  /* Prevent pull-to-refresh on mobile */
   html, body {
     overscroll-behavior-y: contain;
   }
@@ -105,10 +111,17 @@ function AnimatedRoutes() {
 
 export default function App() {
   return (
+<<<<<<< HEAD
     <Router>
       <ThemeProvider theme={githubTheme}>
         <CssBaseline />
         <GlobalStyles />
+=======
+    <ThemeProvider theme={githubTheme}>
+      <CssBaseline />
+      <GlobalStyle />
+      <Router>
+>>>>>>> parent of 1878657 (Prepare for deployment)
         <Box sx={{ 
           minHeight: '100vh',
           bgcolor: 'background.default',
