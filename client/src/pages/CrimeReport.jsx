@@ -36,7 +36,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     }
   },
   '& .MuiSelect-select': {
-    maxWidth: '200px' // Limit dropdown button width
+    maxWidth: '200px'
   }
 }));
 
@@ -80,7 +80,6 @@ export default function CrimeReport() {
     });
 
     newMap.on('load', () => {
-      // Add click event to map
       newMap.on('click', (e) => {
         const { lng, lat } = e.lngLat;
         
@@ -125,7 +124,6 @@ export default function CrimeReport() {
       if (response.status === 201) {
         setSuccess(true);
         setError('');
-        // Clear form or redirect
         setTimeout(() => {
           navigate('/');
         }, 2000);
@@ -189,9 +187,9 @@ export default function CrimeReport() {
                   MenuProps: {
                     PaperProps: {
                       sx: {
-                        maxWidth: '200px', // Limit dropdown menu width
+                        maxWidth: '200px',
                         '& .MuiMenuItem-root': {
-                          whiteSpace: 'normal', // Allow text wrapping in menu items
+                          whiteSpace: 'normal',
                           padding: '8px 16px'
                         }
                       }
