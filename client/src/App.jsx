@@ -15,6 +15,8 @@ import CrimeReport from './pages/CrimeReport';
 import Dashboard from './pages/Dashboard';
 import Navbar from './components/Navbar';
 import { createGlobalStyle } from 'styled-components';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -106,17 +108,10 @@ function AnimatedRoutes() {
 
 export default function App() {
   return (
-<<<<<<< HEAD
     <Router>
-      <ThemeProvider theme={githubTheme}>
-        <CssBaseline />
-        <GlobalStyles />
-=======
     <ThemeProvider theme={githubTheme}>
       <CssBaseline />
       <GlobalStyle />
-      <Router>
->>>>>>> parent of 1878657 (Prepare for deployment)
         <Box sx={{ 
           minHeight: '100vh',
           bgcolor: 'background.default',
