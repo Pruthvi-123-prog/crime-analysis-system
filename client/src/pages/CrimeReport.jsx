@@ -19,24 +19,34 @@ import "@maptiler/sdk/dist/maptiler-sdk.css";
 import { motion } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  backgroundColor: '#1E1E1E',
+  color: '#E0E0E0',
+  padding: theme.spacing(4)
+}));
+
 const StyledTextField = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
-    backgroundColor: theme.palette.background.paper,
-    '&:hover': {
-      '& .MuiOutlinedInput-notchedOutline': {
-        borderColor: theme.palette.primary.main,
-      }
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    color: '#E0E0E0',
+    '& fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.23)',
+    },
+    '&:hover fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.4)',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: theme.palette.primary.main,
     }
   },
   '& .MuiInputLabel-root': {
-    backgroundColor: theme.palette.background.default,
-    padding: '0 4px',
+    color: '#B0B0B0',
     '&.Mui-focused': {
       color: theme.palette.primary.main
     }
   },
-  '& .MuiSelect-select': {
-    maxWidth: '200px'
+  '& .MuiSelect-icon': {
+    color: '#B0B0B0'
   }
 }));
 
@@ -147,9 +157,9 @@ export default function CrimeReport() {
       width: '100%',
       maxWidth: 800,
       mx: 'auto',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center'
+      p: 3,
+      bgcolor: '#1a1a1a',
+      minHeight: '100vh'
     }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -157,11 +167,23 @@ export default function CrimeReport() {
         transition={{ duration: 0.5 }}
         style={{ width: '100%' }}
       >
-        <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
-          Report an Incident
-        </Typography>
+        <Box sx={{
+          textAlign: 'center',
+          mb: 4,
+          p: 3,
+          bgcolor: 'black',
+          color: 'error.main',
+          borderRadius: 1
+        }}>
+          <Typography variant="h4" gutterBottom>
+            Report an Incident
+          </Typography>
+          <Typography variant="subtitle1" sx={{ color: 'error.light' }}>
+            Help us maintain community safety by reporting incidents
+          </Typography>
+        </Box>
 
-        <Paper elevation={1} sx={{ p: 4 }}>
+        <StyledPaper elevation={3}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <StyledTextField
@@ -235,18 +257,22 @@ export default function CrimeReport() {
           <Button
             fullWidth
             variant="contained"
-            color="primary"
+            color="error"
             size="large"
             startIcon={<SendIcon />}
             onClick={handleSubmit}
             sx={{
               mt: 4,
-              py: 1.5
+              py: 1.5,
+              bgcolor: 'error.main',
+              '&:hover': {
+                bgcolor: 'error.dark',
+              }
             }}
           >
             Submit Report
           </Button>
-        </Paper>
+        </StyledPaper>
       </motion.div>
 
       <Snackbar 
@@ -255,7 +281,14 @@ export default function CrimeReport() {
         onClose={() => setError('')}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert severity="error" onClose={() => setError('')}>
+        <Alert 
+          severity="error" 
+          onClose={() => setError('')}
+          sx={{ 
+            bgcolor: 'error.dark',
+            color: 'white'
+          }}
+        >
           {error}
         </Alert>
       </Snackbar>
@@ -265,7 +298,13 @@ export default function CrimeReport() {
         autoHideDuration={2000}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert severity="success">
+        <Alert 
+          severity="success"
+          sx={{ 
+            bgcolor: 'success.dark',
+            color: 'white'
+          }}
+        >
           Crime reported successfully!
         </Alert>
       </Snackbar>

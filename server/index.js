@@ -26,9 +26,11 @@ app.use(express.json());
 
 // Import routes
 const crimeRoutes = require('./routes/crime.routes');
+const placesRouter = require('./routes/places');
 
 // Use routes
 app.use('/api/crimes', crimeRoutes);
+app.use('/api/places', placesRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

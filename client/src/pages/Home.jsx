@@ -8,13 +8,27 @@ import {
   ListItem, 
   ListItemText, 
   Divider, 
-  Collapse
+  Collapse,
+  CircularProgress
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
+import HelpIcon from '@mui/icons-material/Help';
+import Fab from '@mui/material/Fab';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import DirectionsIcon from '@mui/icons-material/Directions';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import * as maptilersdk from '@maptiler/sdk';
 import "@maptiler/sdk/dist/maptiler-sdk.css";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import Tooltip from '@mui/material/Tooltip';
+import WarningIcon from '@mui/icons-material/Warning';
+import SecurityIcon from '@mui/icons-material/Security';
 
 // Styled components
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -114,6 +128,37 @@ const ManageAlertsPopup = styled(Paper)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius
 }));
 
+const HelpPopup = styled(Paper)(({ theme }) => ({
+  position: 'fixed',
+  bottom: '80px',
+  right: '30px',
+  width: '350px',
+  maxHeight: '500px',
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[5],
+  zIndex: 1300,
+  borderRadius: theme.shape.borderRadius,
+  overflowY: 'auto'
+}));
+
+const HeaderSection = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(3),
+  backgroundColor: theme.palette.primary.dark,
+  color: theme.palette.primary.contrastText,
+  textAlign: 'center',
+  marginBottom: theme.spacing(2)
+}));
+
+const StatsBox = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  margin: theme.spacing(0, 2, 2),
+  backgroundColor: theme.palette.background.paper,
+  display: 'flex',
+  justifyContent: 'space-around',
+  alignItems: 'center'
+}));
+
 export default function Home() {
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -125,6 +170,7 @@ export default function Home() {
   const [sortOrder, setSortOrder] = useState('desc');
   const [filterType, setFilterType] = useState('all');
   const [selectedReport, setSelectedReport] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Fetch reports and setup WebSocket
   useEffect(() => {
@@ -254,33 +300,154 @@ export default function Home() {
     setSelectedReport(selectedReport?.id === report._id ? null : report);
   };
 
+  const fetchNearbyPoliceStations = async (lat, lng) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/places/nearby`, {
+        params: {
+          lat,
+          lng
+        }
+      });
+      console.log('Police stations response:', response.data); // Debug log
+    } catch (error) {
+      console.error('Error fetching police stations:', error);
+    }
+  };
+
+  const handlePoliceStationSearch = async (searchInput) => {
+    try {
+      // You can either pass coordinates or location name
+      const response = await axios.get(`http://localhost:5000/api/places/nearby`, {
+        params: {
+          location: searchInput // or { lat, lng } if using coordinates
+        }
+      });
+
+      if (response.data.redirectUrl) {
+        // Open in new tab
+        window.open(response.data.redirectUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Error searching police stations:', error);
+    }
+  };
+
+  const handleHelpClick = () => {
+    setIsLoading(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const url = `https://www.google.com/maps/search/police+stations/@${position.coords.latitude},${position.coords.longitude},14z`;
+          window.open(url, '_blank');
+          setIsLoading(false);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          setIsLoading(false);
+        }
+      );
+    }
+  };
+
   return (
     <StyledBox>
+      <HeaderSection>
+        <SecurityIcon sx={{ fontSize: 40, mb: 1 }} />
+        <Typography variant="h4" sx={{ mb: 1 }}>
+          Crime Alert System
+        </Typography>
+        <Typography variant="subtitle1">
+          Real-time crime monitoring and reporting for a safer community
+        </Typography>
+      </HeaderSection>
+
+      <StatsBox>
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="h6">{acceptedReports.length}</Typography>
+          <Typography variant="body2" color="text.secondary">Active Alerts</Typography>
+        </Box>
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="h6">24/7</Typography>
+          <Typography variant="body2" color="text.secondary">Monitoring</Typography>
+        </Box>
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="h6">{"< 5 min"}</Typography>
+          <Typography variant="body2" color="text.secondary">Response Time</Typography>
+        </Box>
+      </StatsBox>
+
       <MapContainer>
+        <Box sx={{ 
+          position: 'absolute', 
+          top: '10px', 
+          left: '10px', 
+          zIndex: 1, 
+          bgcolor: 'rgba(255,255,255,0.9)',
+          p: '1px',
+          borderRadius: '1px'
+        }}>
+          <Typography variant="caption" color="text.secondary">
+            🔴 Live Crime Incidents Map
+          </Typography>
+        </Box>
         <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
       </MapContainer>
 
       <AlertsWrapper>
         <AlertsContainer>
-          <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+          <Box sx={{ 
+            p: 2, 
+            borderBottom: 1, 
+            borderColor: 'divider', 
+            bgcolor: 'black', // Changed from error.light to black
+            color: 'error.main' // Added to make text red
+          }}>
             <Box sx={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
               alignItems: 'center'
             }}>
-              <Typography variant="h6" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
-                Recent Alerts
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <WarningIcon color="error" />
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    fontSize: '1.1rem', 
+                    fontWeight: 500, 
+                    color: 'error.main' // Changed from error.dark to error.main
+                  }}
+                >
+                  Active Crime Alerts
+                </Typography>
+              </Box>
               <Button
                 variant="contained"
-                color="primary"
+                color="error"
                 size="small"
-                sx={{ minWidth: 'auto', px: 2, borderRadius: 2 }}
+                sx={{ 
+                  minWidth: 'auto', 
+                  px: 2, 
+                  borderRadius: 2,
+                  bgcolor: 'error.main',
+                  '&:hover': {
+                    bgcolor: 'error.dark',
+                  }
+                }}
                 onClick={() => setShowManageAlerts(true)}
               >
                 Manage Alerts
               </Button>
             </Box>
+            <Typography 
+              variant="caption" 
+              sx={{ 
+                mt: 1, 
+                display: 'block',
+                color: 'error.light' // Changed from error.dark to error.light
+              }}
+            >
+              These alerts are verified by local law enforcement. Stay vigilant and report suspicious activities.
+            </Typography>
           </Box>
 
           <ScrollableList expanded={showManageAlerts}>
@@ -434,6 +601,32 @@ export default function Home() {
           </ManageAlertsPopup>
         </>
       )}
+
+      {/* Floating Location Button */}
+      <Tooltip 
+        title="Find Police Stations Near You"
+        placement="left"
+        arrow
+      >
+        <Fab
+          color="primary"
+          aria-label="find-police"
+          sx={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '30px',
+            zIndex: 1000,
+            bgcolor: 'error.main',
+            '&:hover': {
+              bgcolor: 'error.dark',
+            }
+          }}
+          onClick={handleHelpClick}
+          disabled={isLoading}
+        >
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : <LocationOnIcon />}
+        </Fab>
+      </Tooltip>
     </StyledBox>
   );
 }
